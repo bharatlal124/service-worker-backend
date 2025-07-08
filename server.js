@@ -30,7 +30,7 @@ app.use(express.json());
 // Store subscriptions in-memory (for demo only)
 let subscriptions = [];
 
-app.post('/subscribe', (req, res) => {
+app.post('/', (req, res) => {
   const subscription = req.body;
   subscriptions.push(subscription);
   res.status(201).json({ message: 'Subscribed successfully' });
