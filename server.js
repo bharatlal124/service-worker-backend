@@ -1,7 +1,7 @@
 // server.js
 import express from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
+// import bodyParser from 'body-parser';
 import webPushPkg from 'web-push';
 
 const { setVapidDetails, sendNotification } = webPushPkg;
@@ -22,11 +22,10 @@ setVapidDetails(
 app.use(cors({
   origin: ['http://localhost:3000', 'https://pwa-react-single-page.netlify.app/'],
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true
+  allowedHeaders: ['Content-Type'] 
 }));
-
-app.use(bodyParser.json());
+app.use(express.json());
+// app.use(bodyParser.json());
 
 // Store subscriptions in-memory (for demo only)
 let subscriptions = [];
