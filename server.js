@@ -20,7 +20,7 @@ setVapidDetails(
 );
 
 app.use(cors({
-  origin: ['https://pwa-react-single-page.netlify.app'],
+  origin: ['https://pwa-react-single-page.netlify.app','https://service-worker-backend-h4qr.onrender.com'],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'] 
 }));
