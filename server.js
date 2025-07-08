@@ -20,8 +20,8 @@ setVapidDetails(
 );
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://pwa-react-single-page.netlify.app/'],
-  methods: ['GET', 'POST', 'OPTIONS'],
+  origin: ['https://pwa-react-single-page.netlify.app'],
+  methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'] 
 }));
 app.use(express.json());
