@@ -1,60 +1,44 @@
 // server.js
 import express from 'express';
 import cors from 'cors';
-// import bodyParser from 'body-parser';
-import webPushPkg from 'web-push';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import webPush from 'web-push';
 
-const { setVapidDetails, sendNotification } = webPushPkg;
+// Load env vars
+dotenv.config();
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// 🔐 Your VAPID keys
-const publicKey = 'BGuH-BZdpShuJMHisDaOvZCQgiKiON4PvjINGmKtxkB6xOPESoCHxd7MmcKiyVtYrfOGepMu3wnhN2CDTa26YwE';
-const privateKey = 'UWRuioSXq3nVyRCq0sgYYB7_MtAbRUl1wBJ5QDSWVSA';
+// VAPID keys
+const publicKey = process.env.PUBLICKEY;
+const privateKey = process.env.PRIVATEKEY;
 
-setVapidDetails(
+webPush.setVapidDetails(
   'mailto:bharatlal.kumar@technians.com',
   publicKey,
   privateKey
 );
 
-app.use(cors({
-  origin: ['https://pwa-react-single-page.netlify.app','https://service-worker-backend-h4qr.onrender.com'],
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'] 
-}));
-app.use(express.json());
-// app.use(bodyParser.json());
- 
-// Store subscriptions in-memory (for demo only)
-let subscriptions = [];
+// Middleware
+app.use(cors({ origin: '*', methods: ['GET', 'POST'], allowedHeaders: ['Content-Type'] }));
+app.use(bodyParser.json());
 
-app.post('/', (req, res) => {
-  const subscription = req.body;
-  subscriptions.push(subscription);
-  res.status(201).json({ message: 'Subscribed successfully' });
-});
+// Routes
+import subscribeRoute from './routes/subscribe.js';
+import notifyRoute from './routes/notify.js';
 
-app.post('/sendNotification', (req, res) => {
-  const notificationPayload = JSON.stringify({
-    title: 'Push Notification',
-    body: 'This is from your Node.js backend!',
-    url: '/sendNotification'
-  });
+app.use('/subscribe', subscribeRoute);
+app.use('/sendNotification', notifyRoute);
 
-  const sendPromises = subscriptions
-    .filter(sub => sub?.endpoint?.startsWith('https://'))
-    .map(sub => sendNotification(sub, notificationPayload));
-
-  Promise.all(sendPromises)
-    .then(() => res.status(200).json({ message: 'Push sent' }))
-    .catch(err => {
-      console.error("Push error:", err);
-      res.sendStatus(500);
+// Connect to MongoDB and start server
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on http://localhost:${PORT}`);
     });
-});
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-});
+  })
+  .catch(err => console.error('❌ DB connection error:', err));
